@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+  	<link rel="stylesheet" href="jqui/jquery-ui.min.css">
+	<script src="jqui/external/jquery/jquery.js"></script>
+	<script src="jqui/jquery-ui.min.js"></script>
+	<style>
+  		#custom-handle {
+  		  width: 5em;
+  		  height: 1.6em;
+  		  top: 50%;
+  		  margin-top: -.8em;
+  		  text-align: center;
+  		  line-height: 1.6em;
+  		}
+      body{
+        width: 80%;
+        height: 100%;
+        margin-left: 10%;
+        margin-right: 10%;
+      }
+      header, footer {
+        padding: 1em;
+        color: white;
+        background-color: black;
+        clear: left;
+        text-align: center;
+      }
+      article {
+        padding: 1em;
+        overflow: hidden;
+        border-style: double;
+    }
+      #contents{
+        margin-left: 1%;
+        margin-right: 1%;
+        overflow: hidden;
+      }
+      #tabs{
+        height:500px;
+        overflow: hidden;
+      }
+      .disabledbutton {
+        pointer-events: none;
+        opacity: 0.4;
+      }
+  	</style>
+</head>
+<body>
+<header>
+  <h1>OPT Date Selection Helper</h1>
+</header>
+
+<article>
+<div id="contents">
+
+	<label for="graduationDatePicker"><b>Select your graduation date  </b></label>
+
+	<input type="text" id="graduationDatePicker">
+	<br><br>
+	<div id="tabs">
+  		<ul>
+  		  <li><a href="#tabs-1">Slider View</a></li>
+  		  <li><a href="#tabs-2">Calendar View</a></li>
+  		</ul>
+  		<div id="tabs-1">
+      <h3>Select your OPT start date</h3><br><br>
+  		  <div id="slider">
+  			 <div id="custom-handle" class="ui-slider-handle"></div>
+            <br><br>
+            <table style="width:100%;text-align:center;">
+              <tr>
+                <td><b>Submit your application to ISSC by</b></td>
+                <td><b>Your application must reach USCIS by</b></td>
+              </tr>
+              <tr>
+                <td><h2 id="submitDate11"></h2></td>
+                <td><h2 id="submitDate12"></h2></td>
+              </tr>
+            </table>
+		      </div>
+  		</div>
+  		<div id="tabs-2">
+      <h3>Select your OPT start date</h3>
+  		  <div id="startDatePicker"></div>
+        <br>
+            <table style="width:100%;text-align:center;">
+              <tr>
+                <td><b>Submit your application to ISSC by</b></td>
+                <td><b>Your application must reach USCIS by</b></td>
+              </tr>
+              <tr>
+                <td><h2 id="submitDate21"></h2></td>
+                <td><h2 id="submitDate22"></h2></td>
+              </tr>
+            </table>
+  		</div>
+
+	</div>
+</div>
+</article>
+
+<footer>
+  <h4>Developed by Aravind Sreenivasa</h4>
+</footer>
+
+<script type="text/javascript">
+	var initialDate = new Date();
+	var lastDate = new Date();
+	var monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  var monthNamesFull = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+  $("#tabs").addClass("disabledbutton");
+
+	$( function() {
+	    $( "#graduationDatePicker" ).datepicker({
+      		showButtonPanel: true,
+      		onSelect: function(){
+      			initialDate = $( "#graduationDatePicker" ).datepicker( "getDate" );
+      			initialDate.setDate(initialDate.getDate() + 1);
+      			lastDate = $( "#graduationDatePicker" ).datepicker( "getDate" );
+      			lastDate.setDate(lastDate.getDate() + 61);
+      			//console.log("initialDate = "+initialDate);
+      			//console.log("lastDate = "+lastDate);
+      			$("#startDatePicker").datepicker( "option", "minDate", initialDate );
+      			$("#startDatePicker").datepicker( "option", "maxDate", lastDate );
+            $("#tabs").removeClass("disabledbutton");
+      		}
+	    });
+	});
+	$( function() {
+	    $( "#startDatePicker" ).datepicker({
+	    	numberOfMonths: 3,
+        onSelect: function(){
+          var submitDate = $( "#startDatePicker" ).datepicker( "getDate" );
+          submitDate.setDate(submitDate.getDate() - 90);
+          $("#submitDate22").text(monthNamesFull[submitDate.getMonth()]+" "+submitDate.getDate()+", "+submitDate.getFullYear());
+          submitDate.setDate(submitDate.getDate() - 21);
+          $("#submitDate21").text(monthNamesFull[submitDate.getMonth()]+" "+submitDate.getDate()+", "+submitDate.getFullYear());
+        }
+	    });
+	});
+	$( function() {
+    	$( "#tabs" ).tabs();
+  	});
+
+  	$( function() {
+    	var handle = $( "#custom-handle" );
+    	$( "#slider" ).slider({
+    		  range: "max",
+          min: 1,
+          max: 61,
+          value: 1,
+      		create: function() {
+      			var val = $( this ).slider( "value" );
+      			var effectiveDate = new Date(initialDate.getTime());
+      			effectiveDate.setDate(effectiveDate.getDate() + val);
+        		handle.text( monthNames[effectiveDate.getMonth()]+" "+effectiveDate.getDate() );
+      		},
+      		slide: function( event, ui ) {
+      			var val = ui.value;
+      			var effectiveDate = new Date(initialDate.getTime());
+      			effectiveDate.setDate(effectiveDate.getDate() + val);
+        		handle.text( monthNames[effectiveDate.getMonth()]+" "+effectiveDate.getDate() );
+            var submitDate = new Date(effectiveDate.getTime());
+            submitDate.setDate(submitDate.getDate() - 90);
+            $("#submitDate12").text(monthNamesFull[submitDate.getMonth()]+" "+submitDate.getDate()+", "+submitDate.getFullYear());
+            submitDate.setDate(submitDate.getDate() - 21);
+            $("#submitDate11").text(monthNamesFull[submitDate.getMonth()]+" "+submitDate.getDate()+", "+submitDate.getFullYear());
+      		}
+    	});
+  	});
+	
+</script>
+
+</body>
+</html>
